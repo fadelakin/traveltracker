@@ -68,7 +68,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(this);
         mMap.setInfoWindowAdapter(new MarkerAdapter(getLayoutInflater(), mMemories));
         List<Memory> memories = mDataSource.getAllMememories();
-        Log.d(TAG, "Memories are " + memories);
+        for(Memory memory : memories) {
+            addMarker(memory);
+        }
     }
 
     @Override
@@ -108,11 +110,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onSaveClicked(Memory memory) {
         // add marker for where user clicked
+        addMarker(memory);
+        mDataSource.createMemory(memory);
+    }
+
+    private void addMarker(Memory memory) {
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(memory.getLatitude(), memory.getLongitude())));
 
         mMemories.put(marker.getId(), memory);
-        mDataSource.createMemory(memory);
     }
 
     @Override
