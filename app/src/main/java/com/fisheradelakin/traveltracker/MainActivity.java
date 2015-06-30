@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onInfoWindowClick(final Marker marker) {
-        Memory memory = mMemories.get(marker.getId());
+        final Memory memory = mMemories.get(marker.getId());
         String[] actions = {"Edit", "Delete"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(memory.getCity() + ", " + memory.getCountry())
@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onClick(DialogInterface dialog, int which) {
                         if(which == 1) {
                             marker.remove();
+                            mDataSource.deleteMemory(memory);
                         }
                     }
                 });
