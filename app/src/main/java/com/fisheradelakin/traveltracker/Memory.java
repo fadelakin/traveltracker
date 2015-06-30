@@ -1,9 +1,11 @@
 package com.fisheradelakin.traveltracker;
 
+import java.io.Serializable;
+
 /**
  * Created by Fisher on 6/29/15.
  */
-public class Memory {
+public class Memory implements Serializable {
 
     private double mLatitude;
     private double mLongitude;

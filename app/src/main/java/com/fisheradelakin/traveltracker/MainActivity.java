@@ -24,9 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        GoogleMap.OnMapClickListener, MemoryDialogFragment.Listener {
 
     private static final String TAG = "MainActivity";
+    private static final String MEMORY_DIALOG_TAG = "MemoryDialog";
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -84,13 +86,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         memory.setCountry(bestMatch.getAddressLine(maxLine));
         memory.setLatitude(latLng.latitude);
         memory.setLongitude(latLng.longitude);
-        memory.setNotes("My notes . . . ");
 
-        // add marker for where user clicked
-        Marker marker = mMap.addMarker(new MarkerOptions()
-                .position(latLng));
-
-        mMemories.put(marker.getId(), memory);
+        MemoryDialogFragment.newInstance(memory).show(getFragmentManager(), MEMORY_DIALOG_TAG); // custom dialog
     }
 
     @Override
@@ -100,6 +97,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         double longitude = location.getLongitude();
 
         Log.d(TAG, "Latitude: " + latitude + ", longitude: " + longitude);
+    }
+
+    @Override
+    public void onSaveClicked(Memory memory) {
+        // add marker for where user clicked
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(memory.getLatitude(), memory.getLongitude())));
+
+        mMemories.put(marker.getId(), memory);
+    }
+
+    @Override
+    public void onCancelClicked(Memory memory) {
+
     }
 
     @Override
