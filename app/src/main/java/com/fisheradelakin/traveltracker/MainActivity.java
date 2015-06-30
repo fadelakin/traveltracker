@@ -1,7 +1,10 @@
 package com.fisheradelakin.traveltracker;
 
 import android.app.AlertDialog;
+import android.app.LoaderManager;
 import android.content.DialogInterface;
+import android.content.Loader;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -32,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleMap.OnMapClickListener,
         MemoryDialogFragment.Listener,
         GoogleMap.OnMarkerDragListener,
-        GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener,
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String TAG = "MainActivity";
     private static final String MEMORY_DIALOG_TAG = "MemoryDialog";
@@ -47,9 +51,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
         mDataSource = new MemoriesDataSource(this);
+        getLoaderManager().initLoader(0, null, this);
+
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        mMap = mapFragment.getMap();
+        onMapReady(mMap);
 
         addGoogleAPIClient();
     }
@@ -70,28 +77,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
         mMap.setInfoWindowAdapter(new MarkerAdapter(getLayoutInflater(), mMemories));
         mMap.setOnMarkerDragListener(this);
         mMap.setOnInfoWindowClickListener(this);
-        new AsyncTask<Void, Void, List<Memory>>() {
-
-            @Override
-            protected List<Memory> doInBackground(Void... params) {
-                return mDataSource.getAllMememories();
-            }
-
-            @Override
-            protected void onPostExecute(List<Memory> memories) {
-                Log.d(TAG, "Got result");
-                super.onPostExecute(memories);
-                onFetchedMemories(memories);
-            }
-        }.execute();
-
-        Log.d(TAG, "End of onMapReady");
     }
 
     private void onFetchedMemories(List<Memory> memories) {
@@ -143,6 +133,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // add marker for where user clicked
         addMarker(memory);
         mDataSource.createMemory(memory);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new MemoriesLoader(this, mDataSource);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        onFetchedMemories(mDataSource.cursorToMemories(data));
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     private void addMarker(Memory memory) {
