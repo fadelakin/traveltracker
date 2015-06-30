@@ -7,6 +7,8 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
+import java.util.HashMap;
+
 /**
  * Created by Fisher on 6/29/15.
  */
@@ -14,9 +16,11 @@ public class MarkerAdapter implements GoogleMap.InfoWindowAdapter {
 
     private LayoutInflater mLayoutInflater;
     private View mView;
+    private HashMap<String, Memory> mMemories;
 
-    MarkerAdapter(LayoutInflater layoutInflater) {
+    MarkerAdapter(LayoutInflater layoutInflater, HashMap<String, Memory> memories) {
         mLayoutInflater = layoutInflater;
+        mMemories = memories;
     }
 
     @Override
@@ -31,11 +35,16 @@ public class MarkerAdapter implements GoogleMap.InfoWindowAdapter {
             mView = mLayoutInflater.inflate(R.layout.marker, null);
         }
 
+        Memory memory = mMemories.get(marker.getId());
+
         TextView titleView = (TextView) mView.findViewById(R.id.title);
-        titleView.setText(marker.getTitle());
+        titleView.setText(memory.getCity());
 
         TextView snippetView = (TextView) mView.findViewById(R.id.snippet);
-        snippetView.setText(marker.getSnippet());
+        snippetView.setText(memory.getCountry());
+
+        TextView notesView = (TextView) mView.findViewById(R.id.notes);
+        notesView.setText(memory.getNotes());
 
         return mView;
     }
