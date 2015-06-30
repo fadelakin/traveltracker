@@ -33,7 +33,7 @@ public class MemoriesDataSource {
         values.put(DbHelper.COLUMN_COUNTRY, memory.getCountry());
         values.put(DbHelper.COLUMN_LATITUDE, memory.getLatitude());
         values.put(DbHelper.COLUMN_LONGITUDE, memory.getLongitude());
-        mDbHelper.getWritableDatabase().insert(DbHelper.MEMORIES_TABLE, null, values);
+        memory.setId(mDbHelper.getWritableDatabase().insert(DbHelper.MEMORIES_TABLE, null, values));
     }
 
     public List<Memory> getAllMememories() {
@@ -50,8 +50,22 @@ public class MemoriesDataSource {
         return memories;
     }
 
+    public void updateMemory(Memory memory) {
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.COLUMN_NOTES, memory.getNotes());
+        values.put(DbHelper.COLUMN_CITY, memory.getCity());
+        values.put(DbHelper.COLUMN_COUNTRY, memory.getCountry());
+        values.put(DbHelper.COLUMN_LATITUDE, memory.getLatitude());
+        values.put(DbHelper.COLUMN_LONGITUDE, memory.getLongitude());
+
+        String[] whereArgs = {String.valueOf(memory.getId())};
+
+        mDbHelper.getWritableDatabase().update(mDbHelper.MEMORIES_TABLE, values, mDbHelper.COLUMN_ID + "=?", whereArgs);
+    }
+
     private Memory cursorToMemory(Cursor cursor) {
         Memory memory = new Memory();
+        memory.setId(cursor.getLong(0));
         memory.setCity(cursor.getString(1));
         memory.setCountry(cursor.getString(2));
         memory.setLatitude(cursor.getDouble(3));

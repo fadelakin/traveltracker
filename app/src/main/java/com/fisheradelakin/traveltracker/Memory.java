@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public class Memory implements Serializable {
 
+    private long id;
     private double mLatitude;
     private double mLongitude;
     private String mCity;
@@ -51,5 +52,13 @@ public class Memory implements Serializable {
 
     public void setNotes(String notes) {
         mNotes = notes;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

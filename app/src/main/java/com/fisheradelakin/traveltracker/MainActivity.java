@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMarkerDragEnd(Marker marker) {
         Memory memory = mMemories.get(marker.getId());
         updateMemoryPosition(memory, marker.getPosition());
+        mDataSource.updateMemory(memory);
     }
 
     @Override
