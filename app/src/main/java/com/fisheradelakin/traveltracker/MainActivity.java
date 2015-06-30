@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -75,7 +76,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setInfoWindowAdapter(new MarkerAdapter(getLayoutInflater(), mMemories));
         mMap.setOnMarkerDragListener(this);
         mMap.setOnInfoWindowClickListener(this);
-        List<Memory> memories = mDataSource.getAllMememories();
+        new AsyncTask<Void, Void, List<Memory>>() {
+
+            @Override
+            protected List<Memory> doInBackground(Void... params) {
+                return mDataSource.getAllMememories();
+            }
+
+            @Override
+            protected void onPostExecute(List<Memory> memories) {
+                Log.d(TAG, "Got result");
+                super.onPostExecute(memories);
+                onFetchedMemories(memories);
+            }
+        }.execute();
+
+        Log.d(TAG, "End of onMapReady");
+    }
+
+    private void onFetchedMemories(List<Memory> memories) {
         for(Memory memory : memories) {
             addMarker(memory);
         }
