@@ -88,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         memory.setLongitude(latLng.longitude);
 
         MemoryDialogFragment.newInstance(memory).show(getFragmentManager(), MEMORY_DIALOG_TAG); // custom dialog
+
+        MemoriesDataSource dataSource = new MemoriesDataSource(this);
     }
 
     @Override
