@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private HashMap<String, Memory> mMemories = new HashMap<>();
+    private MemoriesDataSource mDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        mDataSource = new MemoriesDataSource(this);
 
         addGoogleAPIClient();
     }
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
         mMap.setInfoWindowAdapter(new MarkerAdapter(getLayoutInflater(), mMemories));
+        List<Memory> memories = mDataSource.getAllMememories();
+        Log.d(TAG, "Memories are " + memories);
     }
 
     @Override
@@ -89,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         MemoryDialogFragment.newInstance(memory).show(getFragmentManager(), MEMORY_DIALOG_TAG); // custom dialog
 
-        MemoriesDataSource dataSource = new MemoriesDataSource(this);
+
     }
 
     @Override
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .position(new LatLng(memory.getLatitude(), memory.getLongitude())));
 
         mMemories.put(marker.getId(), memory);
+        mDataSource.createMemory(memory);
     }
 
     @Override
