@@ -25,7 +25,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        GoogleMap.OnMapClickListener, MemoryDialogFragment.Listener {
+        GoogleMap.OnMapClickListener, MemoryDialogFragment.Listener, GoogleMap.OnMarkerDragListener {
 
     private static final String TAG = "MainActivity";
     private static final String MEMORY_DIALOG_TAG = "MemoryDialog";
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
         mMap.setInfoWindowAdapter(new MarkerAdapter(getLayoutInflater(), mMemories));
+        mMap.setOnMarkerDragListener(this);
         List<Memory> memories = mDataSource.getAllMememories();
         for(Memory memory : memories) {
             addMarker(memory);
@@ -75,6 +76,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapClick(LatLng latLng) {
+
+        Memory memory = new Memory();
+        updateMemoryPosition(memory, latLng);
+
+        MemoryDialogFragment.newInstance(memory).show(getFragmentManager(), MEMORY_DIALOG_TAG); // custom dialog
+    }
+
+    private void updateMemoryPosition(Memory memory, LatLng latLng) {
         // use geocoding to get some information about coordinates
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = null;
@@ -87,15 +96,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Address bestMatch = (matches.isEmpty()) ? null : matches.get(0);
         int maxLine = bestMatch.getMaxAddressLineIndex();
 
-        Memory memory = new Memory();
+
         memory.setCity(bestMatch.getAddressLine(maxLine - 1));
         memory.setCountry(bestMatch.getAddressLine(maxLine));
         memory.setLatitude(latLng.latitude);
         memory.setLongitude(latLng.longitude);
-
-        MemoryDialogFragment.newInstance(memory).show(getFragmentManager(), MEMORY_DIALOG_TAG); // custom dialog
-
-
     }
 
     @Override
@@ -116,9 +121,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void addMarker(Memory memory) {
         Marker marker = mMap.addMarker(new MarkerOptions()
+                .draggable(true)
                 .position(new LatLng(memory.getLatitude(), memory.getLongitude())));
 
         mMemories.put(marker.getId(), memory);
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        Memory memory = mMemories.get(marker.getId());
+        updateMemoryPosition(memory, marker.getPosition());
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+
     }
 
     @Override
