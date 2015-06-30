@@ -1,7 +1,9 @@
 package com.fisheradelakin.traveltracker;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -13,6 +15,8 @@ import java.util.HashMap;
  * Created by Fisher on 6/29/15.
  */
 public class MarkerAdapter implements GoogleMap.InfoWindowAdapter {
+
+    private static final String TAG  = "MarkerAdapter";
 
     private LayoutInflater mLayoutInflater;
     private View mView;

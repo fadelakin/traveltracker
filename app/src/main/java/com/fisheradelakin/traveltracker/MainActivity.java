@@ -1,5 +1,7 @@
 package com.fisheradelakin.traveltracker;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -24,8 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        GoogleMap.OnMapClickListener, MemoryDialogFragment.Listener, GoogleMap.OnMarkerDragListener {
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleMap.OnMapClickListener,
+        MemoryDialogFragment.Listener,
+        GoogleMap.OnMarkerDragListener,
+        GoogleMap.OnInfoWindowClickListener {
 
     private static final String TAG = "MainActivity";
     private static final String MEMORY_DIALOG_TAG = "MemoryDialog";
@@ -68,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(this);
         mMap.setInfoWindowAdapter(new MarkerAdapter(getLayoutInflater(), mMemories));
         mMap.setOnMarkerDragListener(this);
+        mMap.setOnInfoWindowClickListener(this);
         List<Memory> memories = mDataSource.getAllMememories();
         for(Memory memory : memories) {
             addMarker(memory);
@@ -125,6 +132,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .position(new LatLng(memory.getLatitude(), memory.getLongitude())));
 
         mMemories.put(marker.getId(), memory);
+    }
+
+    @Override
+    public void onInfoWindowClick(final Marker marker) {
+        Memory memory = mMemories.get(marker.getId());
+        String[] actions = {"Edit", "Delete"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(memory.getCity() + ", " + memory.getCountry())
+                .setItems(actions, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == 1) {
+                            marker.remove();
+                        }
+                    }
+                });
+
+        builder.create().show();
     }
 
     @Override
